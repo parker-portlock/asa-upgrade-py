@@ -72,6 +72,66 @@ if newVersion != "":
         #start script
         print("Starting upgrade...")
 
+        print("failover reload-standby")
+        print("Waiting for standby to reload...")
+        time.sleep(120)
+        print("Initiating manual failover...")
+        print("failover exec standby failover active")
+        time.sleep(10)
+        # log into the firewall again
+        print("failover reload-standby")
+        print("Waiting for new standby to reload...")
+        time.sleep(120)
+        print("Initiating manual failover")
+        print("failover exec standby failover active")
+        time.sleep(10)
+        
+        upgradeSuccess = False
+
+        #Upgrade Verification
+        print("Verifying new software version...")
+        showBootVar = "show bootvar"
+        net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
+        bootVar = net_connect.send_command(showBootVar)
+
+
+        postBoot = [newVersion]
+        for pattern in postBoot:
+            if re.search(pattern,bootVar):
+                print('Verified new software version.')
+                upgradeSuccess = True
+                
+            else:
+                print("Software version does not match intened upgrade. Please check your configuration.")
+                print("Current bootvar = ", bootVar)
+                print("Expected bootvar file = ", newVersion)
+                sys.exit()
+
+    if upgradeSuccess == True:
+        print("Checking Failover status...")
+        
+        #reset failover checks
+        syncStatus = False
+        stdbyStatus = False
+
+        for pattern in stdbyRed:
+
+            if re.search(pattern,failoverState):
+                stdbyStatus = True
+            else:
+                print('no match')
+
+        syncRed = ['Sync Done']
+        for pattern in syncRed:
+
+            if re.search(pattern,failoverState):
+                syncStatus = True
+            else:
+                print('no match')
+        
+        if syncStatus == True and stdbyStatus == True:
+            print('Upgrade complete.')
+            sys.exit()
 
     elif syncStatus == False and stdbyStatus == True:
 
