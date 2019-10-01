@@ -71,24 +71,9 @@ if newVersion != "":
         print("Starting upgrade...")
 
         print("failover reload-standby")
-        print("Waiting for standby to reload...")
-        time.sleep(120)
-        print("Initiating manual failover...")
-        print("failover exec standby failover active")
-        time.sleep(10)
-        # log into the firewall again
-        print("failover reload-standby")
-        print("Waiting for new standby to reload...")
-        time.sleep(120)
-        print("Initiating manual failover")
-        print("failover exec standby failover active")
-        time.sleep(10)
-        
-        upgradeSuccess = False
-        postHA = False
-        #Upgrade Verification
-        print("Verifying new software version...")
 
+
+        print("Waiting for standby to reload...")
         attempts = 0
         #wait for the standby to reboot before verifying
         while attempts < 3:
@@ -120,14 +105,66 @@ if newVersion != "":
                     postHA = True
                     attempts = 3
                 else:
-                    print('Waiting for standby to boot...')
-                    time.sleep(30)
+                    print('Still waiting for standby to boot...')
+                    time.sleep(90)
             except:
                 attempts += 1
                 print('Standby not booted yet...')
 
 
+        print("Initiating manual failover...")
 
+        print("failover exec standby failover active")
+        time.sleep(30)
+        # log into the firewall again
+        print("failover reload-standby")
+        print("Waiting for new standby to reload...")
+        attempts = 0
+        #wait for the standby to reboot before verifying
+        while attempts < 3:
+            try:
+                showFailover = "sh failover state"
+                net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
+                failoverState = net_connect.send_command(showFailover)
+                syncStatus = False
+                stdbyStatus = False
+
+                stdbyRed = ['Standby Ready']
+
+                for pattern in stdbyRed:
+
+                    if re.search(pattern,failoverState):
+                        print('Standby Booted!')
+                        stdbyStatus = True
+
+
+                syncRed = ['Sync Done']
+                for pattern in syncRed:
+
+                    if re.search(pattern,failoverState):
+                        print('Config Synced!')
+                        syncStatus = True
+
+
+                if syncStatus == True and stdbyStatus == True:
+                    postHA = True
+                    attempts = 3
+                else:
+                    print('Still waiting for standby to boot...')
+                    time.sleep(90)
+            except:
+                attempts += 1
+                print('Standby not booted yet...')
+
+
+        print("Initiating manual failover")
+        print("failover exec standby failover active")
+        time.sleep(30)
+        
+        upgradeSuccess = False
+        postHA = False
+        #Upgrade Verification
+        print("Verifying new software version...")
         #check bootvar
         showBootVar = "show bootvar"
         net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
