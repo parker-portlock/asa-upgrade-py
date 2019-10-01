@@ -49,20 +49,18 @@ if newVersion != "":
     stdbyRed = ['Standby Ready']
 
     for pattern in stdbyRed:
-        print('Looking for "%s" in "%s" ->' % (pattern, failoverState), end=' ')
 
         if re.search(pattern,failoverState):
-            print('Found a match')
+            print('Standby Ready!')
             stdbyStatus = True
         else:
             print('no match')
 
     syncRed = ['Sync Done']
     for pattern in syncRed:
-        print('Looking for "%s" in "%s" ->' % (pattern, failoverState), end=' ')
 
         if re.search(pattern,failoverState):
-            print('Found a match')
+            print('Config Synced!')
             syncStatus = True
         else:
             print('no match')
@@ -87,9 +85,50 @@ if newVersion != "":
         time.sleep(10)
         
         upgradeSuccess = False
-
+        postHA = False
         #Upgrade Verification
         print("Verifying new software version...")
+
+        attempts = 0
+        #wait for the standby to reboot before verifying
+        while attempts < 3:
+            try:
+                showFailover = "sh failover state"
+                net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
+                failoverState = net_connect.send_command(showFailover)
+                syncStatus = False
+                stdbyStatus = False
+
+                stdbyRed = ['Standby Ready']
+
+                for pattern in stdbyRed:
+
+                    if re.search(pattern,failoverState):
+                        print('Standby Booted!')
+                        stdbyStatus = True
+
+
+                syncRed = ['Sync Done']
+                for pattern in syncRed:
+
+                    if re.search(pattern,failoverState):
+                        print('Config Synced!')
+                        syncStatus = True
+
+
+                if syncStatus == True and stdbyStatus == True:
+                    postHA = True
+                    attempts = 3
+                else:
+                    print('Waiting for standby to boot...')
+                    time.sleep(30)
+            except:
+                attempts += 1
+                print('Standby not booted yet...')
+
+
+
+        #check bootvar
         showBootVar = "show bootvar"
         net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
         bootVar = net_connect.send_command(showBootVar)
@@ -102,36 +141,36 @@ if newVersion != "":
                 upgradeSuccess = True
                 
             else:
-                print("Software version does not match intened upgrade. Please check your configuration.")
+                print("Software version does not match intended upgrade version. Please check your configuration.")
                 print("Current bootvar = ", bootVar)
                 print("Expected bootvar file = ", newVersion)
                 sys.exit()
 
-    if upgradeSuccess == True:
-        print("Checking Failover status...")
-        
-        #reset failover checks
-        syncStatus = False
-        stdbyStatus = False
+        if upgradeSuccess == True:
+            print("Checking Failover status...")
 
-        for pattern in stdbyRed:
+            #reset failover checks
+            syncStatus = False
+            stdbyStatus = False
 
-            if re.search(pattern,failoverState):
-                stdbyStatus = True
-            else:
-                print('no match')
+            for pattern in stdbyRed:
 
-        syncRed = ['Sync Done']
-        for pattern in syncRed:
+                if re.search(pattern,failoverState):
+                    stdbyStatus = True
+                else:
+                    print('no match')
 
-            if re.search(pattern,failoverState):
-                syncStatus = True
-            else:
-                print('no match')
-        
-        if syncStatus == True and stdbyStatus == True:
-            print('Upgrade complete.')
-            sys.exit()
+            syncRed = ['Sync Done']
+            for pattern in syncRed:
+
+                if re.search(pattern,failoverState):
+                    syncStatus = True
+                else:
+                    print('no match')
+
+            if syncStatus == True and stdbyStatus == True:
+                print('Upgrade complete.')
+                sys.exit()
 
     elif syncStatus == False and stdbyStatus == True:
 
