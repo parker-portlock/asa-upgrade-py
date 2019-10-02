@@ -147,6 +147,7 @@ if newVersion != "":
         print("Initiating manual failover back to primary...")
         net_connect.send_command(failAct)
         time.sleep(10)
+        net_connect.disconnect()
         
         upgradeSuccess = False
         postHA = False
