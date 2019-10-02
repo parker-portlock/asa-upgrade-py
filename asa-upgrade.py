@@ -100,7 +100,7 @@ if newVersion != "":
 
         print("Initiating manual failover...")
         failAct = "failover exec standby failover active"
-        net_connect.send_command(failAct,expect_string=r'Switching to Standby') #----------------------fail point
+        net_connect.send_command(failAct,expect_string=r'password:') #----------------------fail point
         net_connect.disconnect()
         time.sleep(10)
 
@@ -110,6 +110,7 @@ if newVersion != "":
         print("Waiting for new standby to reload...")
         time.sleep(30)
         # wait for the standby to reboot before verifying
+        
         attempts = 0
         while attempts < 3:
             try:
