@@ -105,9 +105,9 @@ if newVersion != "":
 
 
         print('Logging back in...')
-        net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
+        net_connectA = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
 #----------------------fail point
-        net_connect.send_command(reloadStdby)
+        net_connectA.send_command(reloadStdby)
         print("Waiting for new standby to reload...")
         time.sleep(30)
         # wait for the standby to reboot before verifying
@@ -115,7 +115,7 @@ if newVersion != "":
         while attempts < 3:
             try:
                 showFailover = "sh failover state"
-                failoverState = net_connect.send_command(showFailover)
+                failoverState = net_connectA.send_command(showFailover)
                 syncStatus = False
                 stdbyStatus = False
 
@@ -132,7 +132,6 @@ if newVersion != "":
                         print('Config Synced!')
                         syncStatus = True
 
-
                 if syncStatus == True and stdbyStatus == True:
                     postHA = True
                     attempts = 3
@@ -145,18 +144,18 @@ if newVersion != "":
 
         # Start second Manual failover
         print("Initiating manual failover back to primary...")
-        net_connect.send_command(failAct)
+        net_connectA.send_command(failAct)
         time.sleep(10)
-        net_connect.disconnect()
-        
+        #net_connectA.disconnect()
+
         upgradeSuccess = False
         postHA = False
         # Upgrade Verification
         print("Verifying new software version...")
         # check bootvar
         showBootVar = "show bootvar"
-        net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
-        bootVar = net_connect.send_command(showBootVar)
+        net_connectB = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
+        bootVar = net_connectB.send_command(showBootVar)
 
 
         postBoot = [newVersion]
@@ -193,6 +192,7 @@ if newVersion != "":
 
             if syncStatus == True and stdbyStatus == True:
                 print('Upgrade complete.')
+                net_connectB.disconnect()
                 sys.exit()
 
     elif syncStatus == False and stdbyStatus == True:
