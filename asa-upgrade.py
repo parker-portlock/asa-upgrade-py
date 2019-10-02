@@ -152,6 +152,7 @@ if newVersion != "":
         print("Verifying new software version...")
         # check bootvar
         showBootVar = "show bootvar"
+        net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
         bootVar = net_connect.send_command(showBootVar)
 
 
