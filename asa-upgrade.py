@@ -61,7 +61,8 @@ if newVersion != "":
         print("Starting upgrade...")
         reloadStdby = 'failover reload-standby'
         net_connect.send_command(reloadStdby)
-
+        # need a pause to give the firewall time to actually initiate the reboot
+        time.sleep(30)
         # wait for the standby to reboot before verifying
         print("Waiting for standby to reload...")
         attempts = 0
@@ -99,12 +100,12 @@ if newVersion != "":
         print("Initiating manual failover...")
         failAct = 'failover exec standby failover active'
         net_connect.send_command(failAct)
-        time.sleep(30)
+        time.sleep(5)
 
         # log into the firewall again
         net_connect.send_command(reloadStdby)
         print("Waiting for new standby to reload...")
-        
+        time.sleep(30)
         # wait for the standby to reboot before verifying
         attempts = 0
         while attempts < 3:
@@ -141,7 +142,7 @@ if newVersion != "":
         # Start second Manual failover
         print("Initiating manual failover back to primary...")
         net_connect.send_command(failAct)
-        time.sleep(30)
+        time.sleep(5)
         
         upgradeSuccess = False
         postHA = False
