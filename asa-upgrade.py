@@ -99,14 +99,15 @@ if newVersion != "":
         # Start First manual failover
 
         print("Initiating manual failover...")
-        failAct = 'failover exec standby failover active'
-        net_connect.send_command(failAct)
+        failAct = "failover exec standby failover active"
+        net_connect.send_command(failAct,expect_string=r'Switching to Standby')
+        net_connect.disconnect()
         time.sleep(10)
+#----------------------fail point
 
 
         print('Logging back in...')
         net_connectA = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
-#----------------------fail point
         net_connectA.send_command(reloadStdby)
         print("Waiting for new standby to reload...")
         time.sleep(30)
