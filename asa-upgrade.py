@@ -21,15 +21,13 @@ if newVersion != "":
     print(currentVersion)
 
 
-
-
     #start configuration
-    #print("config t")
-    #print("no", currentVersion)
-    #print("boot system", newVersion)
-    #print("boot system", currentVersion)
-    #print("end")
-    #print("wr mem")
+    print("config t\n",
+            "no", currentVersion, "\n",
+            "boot system", newVersion,"\n",
+            "boot system", currentVersion, "\n",
+            "end\n",
+            "wr mem\n")
 
     # wait for file to save
     print("Waiting for configuration to save...")
