@@ -22,12 +22,7 @@ if newVersion != "":
 
 
     #start configuration
-    print("config t\n",
-            "no", currentVersion, "\n",
-            "boot system", newVersion,"\n",
-            "boot system", currentVersion, "\n",
-            "end\n",
-            "wr mem\n")
+    print("config t\n","no boot system", currentVersion, "\n","boot system", newVersion,"\n","boot system", currentVersion, "\n","end\n","wr mem\n")
 
     # wait for file to save
     print("Waiting for configuration to save...")
@@ -36,7 +31,6 @@ if newVersion != "":
     # check failover status
     print("Checking failover state...")
     showFailover = "sh failover state"
-    net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
     failoverState = net_connect.send_command(showFailover)
 
     # initializes booleans for checking the standby state and configuration sync status
@@ -65,7 +59,8 @@ if newVersion != "":
 
         # start upgrade process
         print("Starting upgrade...")
-        print("failover reload-standby")
+        reloadStdby = 'failover reload-standby'
+        net_connect.send_command(reloadStdby)
 
         # wait for the standby to reboot before verifying
         print("Waiting for standby to reload...")
@@ -73,7 +68,6 @@ if newVersion != "":
         while attempts < 3:
             try:
                 showFailover = "sh failover state"
-                net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
                 failoverState = net_connect.send_command(showFailover)
                 syncStatus = False
                 stdbyStatus = False
@@ -103,11 +97,12 @@ if newVersion != "":
 
         # Start First manual failover
         print("Initiating manual failover...")
-        print("failover exec standby failover active")
+        failAct = 'failover exec standby failover active'
+        net_connect.send_command(failAct)
         time.sleep(30)
 
         # log into the firewall again
-        print("failover reload-standby")
+        net_connect.send_command(reloadStdby)
         print("Waiting for new standby to reload...")
         
         # wait for the standby to reboot before verifying
@@ -115,7 +110,6 @@ if newVersion != "":
         while attempts < 3:
             try:
                 showFailover = "sh failover state"
-                net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
                 failoverState = net_connect.send_command(showFailover)
                 syncStatus = False
                 stdbyStatus = False
@@ -145,8 +139,8 @@ if newVersion != "":
                 print('Standby not booted yet...')
 
         # Start second Manual failover
-        print("Initiating manual failover")
-        print("failover exec standby failover active")
+        print("Initiating manual failover back to primary...")
+        net_connect.send_command(failAct)
         time.sleep(30)
         
         upgradeSuccess = False
@@ -155,7 +149,6 @@ if newVersion != "":
         print("Verifying new software version...")
         # check bootvar
         showBootVar = "show bootvar"
-        net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
         bootVar = net_connect.send_command(showBootVar)
 
 
