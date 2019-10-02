@@ -97,14 +97,16 @@ if newVersion != "":
                 print('Standby not booted yet...')
 
         # Start First manual failover
+
         print("Initiating manual failover...")
         failAct = 'failover exec standby failover active'
         net_connect.send_command(failAct)
-        time.sleep(5)
+        time.sleep(10)
 
-#----------------------fail point
-        # log into the firewall again
+
+        print('Logging back in...')
         net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
+#----------------------fail point
         net_connect.send_command(reloadStdby)
         print("Waiting for new standby to reload...")
         time.sleep(30)
@@ -144,7 +146,7 @@ if newVersion != "":
         # Start second Manual failover
         print("Initiating manual failover back to primary...")
         net_connect.send_command(failAct)
-        time.sleep(5)
+        time.sleep(10)
         
         upgradeSuccess = False
         postHA = False
