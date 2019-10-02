@@ -102,7 +102,9 @@ if newVersion != "":
         net_connect.send_command(failAct)
         time.sleep(5)
 
+#----------------------fail point
         # log into the firewall again
+        net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
         net_connect.send_command(reloadStdby)
         print("Waiting for new standby to reload...")
         time.sleep(30)
