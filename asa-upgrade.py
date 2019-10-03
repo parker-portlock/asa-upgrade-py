@@ -23,7 +23,12 @@ if newVersion != "":
 
 
     #start configuration
-    print("config t\n","no boot system", currentVersion, "\n","boot system", newVersion,"\n","boot system", currentVersion, "\n","end\n","wr mem\n")
+    print("config t\n",
+    "no boot system", currentVersion, 
+    "\n","boot system", newVersion,
+    "\n","boot system", currentVersion, "\n",
+    "end\n",
+    "wr mem\n")
 
     # wait for file to save
     print("Waiting for configuration to save...")
