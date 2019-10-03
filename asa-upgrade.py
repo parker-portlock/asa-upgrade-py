@@ -7,6 +7,7 @@ import re
 import asa
 
 newVersion = input("Please enter the filename for the asa binary: ")
+fileLoc = input("Where is this file saved? (ex. flash:) ")
 
 if newVersion != "":
     
@@ -20,14 +21,15 @@ if newVersion != "":
     net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
     currentVersion = net_connect.send_command(showBoot)
 
+    newLoc = fileLoc + newVersion
     #start configuration
     if currentVersion != '':
-        configBoot = "config t\n" + "no boot system" + currentVersion + "\n" + "boot system" + newVersion + "\n" + "boot system" + currentVersion + "\n" + "end\n" + "wr mem\n"
+        configBoot = "config t\n" + "no boot system" + currentVersion + "\n" + "boot system" + newLoc + "\n" + "boot system" + currentVersion + "\n" + "end\n" + "wr mem\n"
         net_connect.send_command(configBoot)
         print (configBoot)
 
     else:
-        configBoot = "config t\n" + "boot system" + newVersion + "\n" + "end\n" + "wr mem\n"
+        configBoot = "config t\n" + "boot system" + newLoc + "\n" + "end\n" + "wr mem\n"
         net_connect.send_command(configBoot)
         print (configBoot)
 
