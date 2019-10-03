@@ -4,6 +4,7 @@ import netmiko
 import getpass
 import time
 import re
+import asa
 
 newVersion = input("Please enter the filename for the asa binary: ")
 
@@ -99,9 +100,11 @@ if newVersion != "":
         # Start First manual failover
 
         print("Initiating manual failover...")
-        failAct = "failover exec standby failover active"
-        net_connect.send_command(failAct,expect_string=r'password:') #----------------------fail point
-        net_connect.disconnect()
+        
+        asa.failover(host,username,password)
+        #failAct = "failover exec standby failover active"
+        #net_connect.send_command(failAct,expect_string=r'password:') #----------------------fail point
+        #net_connect.disconnect()
         time.sleep(10)
 
         print('Logging back in...')
