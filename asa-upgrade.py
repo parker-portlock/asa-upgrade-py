@@ -24,12 +24,12 @@ if newVersion != "":
     newLoc = fileLoc + newVersion
     #start configuration
     if currentVersion != '':
-        configBoot = "config t\n" + "no boot system" + currentVersion + "\n" + "boot system" + newLoc + "\n" + "boot system" + currentVersion + "\n" + "end\n" + "wr mem\n"
+        configBoot = "config t\n" + "no boot system " + currentVersion + "\n" + "boot system " + newLoc + "\n" + "boot system " + currentVersion + "\n" + "end\n" + "wr mem\n"
         net_connect.send_command(configBoot)
         print (configBoot)
 
     else:
-        configBoot = "config t\n" + "boot system" + newLoc + "\n" + "end\n" + "wr mem\n"
+        configBoot = "config t\n" + "boot system " + newLoc + "\n" + "end\n" + "wr mem\n"
         net_connect.send_command(configBoot)
         print (configBoot)
 
