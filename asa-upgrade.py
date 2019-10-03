@@ -86,18 +86,16 @@ if newVersion != "":
                 for pattern in stdbyRed:
 
                     if re.search(pattern,failoverState):
-                        print('Standby Booted!')
                         stdbyStatus = True
 
                 syncRed = ['Sync Done']
                 for pattern in syncRed:
                     if re.search(pattern,failoverState):
-                        print('Config Synced!')
                         syncStatus = True
 
                 if syncStatus == True and stdbyStatus == True:
                     postHA = True
-                    attempts = 3
+                    attempts = 10
                 else:
                     print('Still waiting for standby to boot...')
                     time.sleep(30)
@@ -128,14 +126,12 @@ if newVersion != "":
                 stdbyRed = ['Standby Ready']
                 for pattern in stdbyRed:
                     if re.search(pattern,failoverState):
-                        print('Standby Booted!')
                         stdbyStatus = True
 
 
                 syncRed = ['Sync Done']
                 for pattern in syncRed:
                     if re.search(pattern,failoverState):
-                        print('Config Synced!')
                         syncStatus = True
 
                 if syncStatus == True and stdbyStatus == True:
