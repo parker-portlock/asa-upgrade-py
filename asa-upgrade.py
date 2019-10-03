@@ -73,7 +73,7 @@ if newVersion != "":
         # wait for the standby to reboot before verifying
         print("Waiting for standby to reload...")
         attempts = 0
-        while attempts < 3:
+        while attempts < 10:
             try:
                 showFailover = "sh failover state"
                 failoverState = net_connect.send_command(showFailover)
@@ -98,7 +98,7 @@ if newVersion != "":
                     attempts = 3
                 else:
                     print('Still waiting for standby to boot...')
-                    time.sleep(120)
+                    time.sleep(30)
             except:
                 attempts += 1
                 print('Standby not booted yet...')
@@ -116,7 +116,7 @@ if newVersion != "":
         
         # wait for the standby to reboot before verifying
         attempts = 0
-        while attempts < 3:
+        while attempts < 10:
             try:
                 showFailover = "sh failover state"
                 failoverState = net_connect.send_command(showFailover)
@@ -138,10 +138,10 @@ if newVersion != "":
 
                 if syncStatus == True and stdbyStatus == True:
                     postHA = True
-                    attempts = 3
+                    attempts = 10
                 else:
                     print('Still waiting for standby to boot...')
-                    time.sleep(120)
+                    time.sleep(30)
             except:
                 attempts += 1
                 print('Standby not booted yet...')
