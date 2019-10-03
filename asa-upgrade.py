@@ -21,11 +21,16 @@ if newVersion != "":
     currentVersion = net_connect.send_command(showBoot)
 
     #start configuration
-    while currentVersion != '':
+    if currentVersion != '':
         print("config t\n",
         "no boot system", currentVersion, 
         "\n","boot system", newVersion,
         "\n","boot system", currentVersion, "\n",
+        "end\n",
+        "wr mem\n")
+    else:
+        print("config t\n",
+        "boot system", newVersion, "\n",
         "end\n",
         "wr mem\n")
 
