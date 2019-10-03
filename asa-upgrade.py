@@ -4,7 +4,6 @@ import netmiko
 import getpass
 import time
 import re
-#import asa
 
 newVersion = input("Please enter the filename for the asa binary: ")
 fileLoc = input("Where is this file saved? (ex. flash:) ")
@@ -17,6 +16,37 @@ def failover (host,username,password):
         net_connect.send_command(failAct) 
     except:
         pass
+
+def waitBoot():
+    print("Waiting for standby to reload...")
+    attempts = 0
+    while attempts < 10:
+        try:
+            showFailover = "sh failover state"
+            failoverState = net_connect.send_command(showFailover)
+            syncStatus = False
+            stdbyStatus = False
+            stdbyRed = ['Standby Ready']
+
+            for pattern in stdbyRed:
+                if re.search(pattern,failoverState):
+                    stdbyStatus = True
+            syncRed = ['Sync Done']
+
+            for pattern in syncRed:
+                if re.search(pattern,failoverState):
+                    syncStatus = True
+
+            if syncStatus == True and stdbyStatus == True:
+                postHA = True
+                attempts = 10
+
+            else:
+                print('Still waiting for standby to boot...')
+                time.sleep(30)
+        except:
+            attempts += 1
+            print('Standby not booted yet...')
 
 if newVersion != "":
     
@@ -79,35 +109,36 @@ if newVersion != "":
         # need a pause to give the firewall time to actually initiate the reboot
         time.sleep(30)
         # wait for the standby to reboot before verifying
-        print("Waiting for standby to reload...")
-        attempts = 0
-        while attempts < 10:
-            try:
-                showFailover = "sh failover state"
-                failoverState = net_connect.send_command(showFailover)
-                syncStatus = False
-                stdbyStatus = False
-
-                stdbyRed = ['Standby Ready']
-                for pattern in stdbyRed:
-
-                    if re.search(pattern,failoverState):
-                        stdbyStatus = True
-
-                syncRed = ['Sync Done']
-                for pattern in syncRed:
-                    if re.search(pattern,failoverState):
-                        syncStatus = True
-
-                if syncStatus == True and stdbyStatus == True:
-                    postHA = True
-                    attempts = 10
-                else:
-                    print('Still waiting for standby to boot...')
-                    time.sleep(30)
-            except:
-                attempts += 1
-                print('Standby not booted yet...')
+        waitBoot()
+#        print("Waiting for standby to reload...")
+#        attempts = 0
+#        while attempts < 10:
+#            try:
+#                showFailover = "sh failover state"
+#                failoverState = net_connect.send_command(showFailover)
+#                syncStatus = False
+#                stdbyStatus = False
+#
+#                stdbyRed = ['Standby Ready']
+#                for pattern in stdbyRed:
+#
+#                    if re.search(pattern,failoverState):
+#                        stdbyStatus = True
+#
+#                syncRed = ['Sync Done']
+#                for pattern in syncRed:
+#                    if re.search(pattern,failoverState):
+#                        syncStatus = True
+#
+#                if syncStatus == True and stdbyStatus == True:
+#                    postHA = True
+#                    attempts = 10
+#                else:
+#                    print('Still waiting for standby to boot...')
+#                    time.sleep(30)
+#            except:
+#                attempts += 1
+#                print('Standby not booted yet...')
 
         # Start First manual failover=
         print("Initiating manual failover...")
@@ -117,38 +148,40 @@ if newVersion != "":
         print('Logging back in...')
         net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
         net_connect.send_command(reloadStdby)
-        print("Waiting for new standby to reload...")
-        time.sleep(30)
-        
-        # wait for the standby to reboot before verifying
-        attempts = 0
-        while attempts < 10:
-            try:
-                showFailover = "sh failover state"
-                failoverState = net_connect.send_command(showFailover)
-                syncStatus = False
-                stdbyStatus = False
+#        print("Waiting for new standby to reload...")
+#        time.sleep(30)
+#        
+#        # wait for the standby to reboot before verifying
+#        attempts = 0
+#        while attempts < 10:
+#            try:
+#                showFailover = "sh failover state"
+#                failoverState = net_connect.send_command(showFailover)
+#                syncStatus = False
+#                stdbyStatus = False
+#
+#                stdbyRed = ['Standby Ready']
+#                for pattern in stdbyRed:
+#                    if re.search(pattern,failoverState):
+#                        stdbyStatus = True
+#
+#
+#                syncRed = ['Sync Done']
+#                for pattern in syncRed:
+#                    if re.search(pattern,failoverState):
+#                        syncStatus = True
+#
+#                if syncStatus == True and stdbyStatus == True:
+#                    postHA = True
+#                    attempts = 10
+#                else:
+#                    print('Still waiting for standby to boot...')
+#                    time.sleep(30)
+#            except:
+#                attempts += 1
+#                print('Standby not booted yet...')
 
-                stdbyRed = ['Standby Ready']
-                for pattern in stdbyRed:
-                    if re.search(pattern,failoverState):
-                        stdbyStatus = True
-
-
-                syncRed = ['Sync Done']
-                for pattern in syncRed:
-                    if re.search(pattern,failoverState):
-                        syncStatus = True
-
-                if syncStatus == True and stdbyStatus == True:
-                    postHA = True
-                    attempts = 10
-                else:
-                    print('Still waiting for standby to boot...')
-                    time.sleep(30)
-            except:
-                attempts += 1
-                print('Standby not booted yet...')
+        waitBoot()
 
         # Start second Manual failover
         print("Initiating manual failover back to primary...")
