@@ -11,7 +11,7 @@ newVersion = input("Please enter the filename for the asa binary: ")
 if newVersion != "":
     
     #show boot configuration in running config
-    showBoot = "show run boot\n show version"
+    showBoot = "show run boot"
 
     host = input("Hostname/IP: ")
     username = input("Username: ")
@@ -21,12 +21,13 @@ if newVersion != "":
     currentVersion = net_connect.send_command(showBoot)
 
     #start configuration
-    print("config t\n",
-    "no boot system", currentVersion, 
-    "\n","boot system", newVersion,
-    "\n","boot system", currentVersion, "\n",
-    "end\n",
-    "wr mem\n")
+    while currentVersion != '':
+        print("config t\n",
+        "no boot system", currentVersion, 
+        "\n","boot system", newVersion,
+        "\n","boot system", currentVersion, "\n",
+        "end\n",
+        "wr mem\n")
 
     # wait for file to save
     print("Waiting for configuration to save...")
