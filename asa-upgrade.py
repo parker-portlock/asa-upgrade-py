@@ -4,10 +4,19 @@ import netmiko
 import getpass
 import time
 import re
-import asa
+#import asa
 
 newVersion = input("Please enter the filename for the asa binary: ")
 fileLoc = input("Where is this file saved? (ex. flash:) ")
+from netmiko import ConnectHandler
+
+def failover (host,username,password): 
+    try:
+        net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
+        failAct = "failover exec standby failover active"
+        net_connect.send_command(failAct) 
+    except:
+        pass
 
 if newVersion != "":
     
@@ -17,7 +26,6 @@ if newVersion != "":
     host = input("Hostname/IP: ")
     username = input("Username: ")
     password = getpass.getpass("Password: ")
-    from netmiko import ConnectHandler
     net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
     currentVersion = net_connect.send_command(showBoot)
 
@@ -103,7 +111,7 @@ if newVersion != "":
 
         # Start First manual failover=
         print("Initiating manual failover...")
-        asa.failover(host,username,password)
+        failover(host,username,password)
         time.sleep(10)
 
         print('Logging back in...')
@@ -144,7 +152,7 @@ if newVersion != "":
 
         # Start second Manual failover
         print("Initiating manual failover back to primary...")
-        asa.failover(host,username,password)
+        failover(host,username,password)
         time.sleep(10)
         #net_connect.disconnect()
 
