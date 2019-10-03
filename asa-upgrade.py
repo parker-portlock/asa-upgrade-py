@@ -97,28 +97,23 @@ if newVersion != "":
                 attempts += 1
                 print('Standby not booted yet...')
 
-        # Start First manual failover
-
+        # Start First manual failover=
         print("Initiating manual failover...")
-        
         asa.failover(host,username,password)
-        #failAct = "failover exec standby failover active"
-        #net_connect.send_command(failAct,expect_string=r'password:') #----------------------fail point
-        #net_connect.disconnect()
         time.sleep(10)
 
         print('Logging back in...')
-        net_connectA = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
-        net_connectA.send_command(reloadStdby)
+        net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
+        net_connect.send_command(reloadStdby)
         print("Waiting for new standby to reload...")
         time.sleep(30)
-        # wait for the standby to reboot before verifying
         
+        # wait for the standby to reboot before verifying
         attempts = 0
         while attempts < 3:
             try:
                 showFailover = "sh failover state"
-                failoverState = net_connectA.send_command(showFailover)
+                failoverState = net_connect.send_command(showFailover)
                 syncStatus = False
                 stdbyStatus = False
 
@@ -147,9 +142,9 @@ if newVersion != "":
 
         # Start second Manual failover
         print("Initiating manual failover back to primary...")
-        net_connectA.send_command(failAct)
+        asa.failover(host,username,password)
         time.sleep(10)
-        #net_connectA.disconnect()
+        #net_connect.disconnect()
 
         upgradeSuccess = False
         postHA = False
@@ -157,8 +152,8 @@ if newVersion != "":
         print("Verifying new software version...")
         # check bootvar
         showBootVar = "show bootvar"
-        net_connectB = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
-        bootVar = net_connectB.send_command(showBootVar)
+        net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
+        bootVar = net_connect.send_command(showBootVar)
 
 
         postBoot = [newVersion]
@@ -195,7 +190,7 @@ if newVersion != "":
 
             if syncStatus == True and stdbyStatus == True:
                 print('Upgrade complete.')
-                net_connectB.disconnect()
+                net_connect.disconnect()
                 sys.exit()
 
     elif syncStatus == False and stdbyStatus == True:
