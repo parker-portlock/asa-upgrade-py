@@ -22,17 +22,22 @@ if newVersion != "":
 
     #start configuration
     if currentVersion != '':
-        print("config t\n",
-        "no boot system", currentVersion, 
-        "\n","boot system", newVersion,
-        "\n","boot system", currentVersion, "\n",
-        "end\n",
-        "wr mem\n")
+        configBoot = "config t\n" +
+        "no boot system" + currentVersion + 
+        "\n" + "boot system" + newVersion +
+        "\n" + "boot system" + currentVersion + "\n" +
+        "end\n" +
+        "wr mem\n"
+        #net_connect.send_command(configBoot)
+        print (configBoot)
+        
     else:
-        print("config t\n",
-        "boot system", newVersion, "\n",
-        "end\n",
-        "wr mem\n")
+        configBoot = "config t\n" +
+        "boot system" + newVersion + "\n" +
+        "end\n" +
+        "wr mem\n"
+        #net_connect.send_command(configBoot)
+        print (configBoot)
 
     # wait for file to save
     print("Waiting for configuration to save...")
