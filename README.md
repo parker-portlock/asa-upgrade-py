@@ -21,4 +21,7 @@ There are built-in checks to prevent the upgrade from running if the configurati
 
 ### Notes
 * This process was *not* tested on ASA 8.x
+
+### Possible Future Revisions
 * The script currently only upgrades one firewall at a time. Multiple HA pair capability is something I would like to implement in the future.
+* Adding a progress status when the firewall is waiting for the secondary member to reboot.
