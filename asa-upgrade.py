@@ -107,7 +107,7 @@ if newVersion != "":
         reloadStdby = 'failover reload-standby'
         net_connect.send_command(reloadStdby)
         # need a pause to give the firewall time to actually initiate the reboot
-        time.sleep(30)
+        time.sleep(60)
         # wait for the standby to reboot before verifying
         waitBoot()
 
@@ -121,6 +121,7 @@ if newVersion != "":
         net_connect.send_command(reloadStdby)
 
         # wait for secondary to come back
+        time.sleep(60)
         waitBoot()
 
         # Start second Manual failover
