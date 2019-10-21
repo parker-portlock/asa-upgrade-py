@@ -38,7 +38,6 @@ def waitBoot():
                     syncStatus = True
 
             if syncStatus == True and stdbyStatus == True:
-                postHA = True
                 attempts = 10
 
             else:
