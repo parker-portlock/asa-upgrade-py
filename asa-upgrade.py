@@ -9,6 +9,7 @@ newVersion = input("Please enter the filename for the asa binary: ")
 fileLoc = input("Where is this file saved? (ex. flash:) ")
 from netmiko import ConnectHandler
 
+# Failover function is used to execute a manual failover of the active/passive firewall pair
 def failover (host,username,password): 
     try:
         net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
@@ -17,6 +18,7 @@ def failover (host,username,password):
     except:
         pass
 
+# waitBoot will check in on the booting status of the firewall and wait for it to come back
 def waitBoot():
     print("Waiting for standby to reload...")
     attempts = 0
@@ -47,19 +49,23 @@ def waitBoot():
             attempts += 1
             print('Standby not booted yet...')
 
+# starts the main upgrade job
 if newVersion != "":
     
-    #show boot configuration in running config
+    # show boot configuration in running config
     showBoot = "show run boot"
 
+    #get hostname and login information
     host = input("Hostname/IP: ")
     username = input("Username: ")
     password = getpass.getpass("Password: ")
     net_connect = ConnectHandler(device_type='cisco_asa',ip=host,username=username,password=password)
-    currentVersion = net_connect.send_command(showBoot)
 
+    # gets the bootvar information and configures the new bootvar
+    currentVersion = net_connect.send_command(showBoot)
     newLoc = fileLoc + newVersion
-    #start configuration
+
+    # start configuration
     if currentVersion != '':
         configBoot = "config t\n" + "no " + currentVersion + "\n" + "boot system " + newLoc + "\n" + currentVersion + "\n" + "end\n" + "wr mem\n"
         net_connect.send_command(configBoot)
